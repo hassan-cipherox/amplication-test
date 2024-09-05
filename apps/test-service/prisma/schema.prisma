@@ -1,0 +1,74 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  createdAt DateTime @default(now())
+  email     String?  @unique
+  firstName String?
+  id        String   @id @default(cuid())
+  lastName  String?
+  password  String
+  roles     Json
+  updatedAt DateTime @updatedAt
+  username  String   @unique
+}
+
+model Attribute {
+  AttributeGroups AttributeGroup[]
+  ItemAttributes  ItemAttribute[]
+  createdAt       DateTime               @default(now())
+  id              String                 @id @default(cuid())
+  key             String?                @unique
+  label           String?
+  typeField       EnumAttributeTypeField
+  updatedAt       DateTime               @updatedAt
+}
+
+model AttributeGroup {
+  ItemTypes  ItemType[]
+  attributes Attribute[]
+  createdAt  DateTime    @default(now())
+  id         String      @id @default(cuid())
+  label      String?
+  updatedAt  DateTime    @updatedAt
+}
+
+model ItemType {
+  AttributeGroups AttributeGroup[]
+  Items           Item[]
+  createdAt       DateTime         @default(now())
+  id              String           @id @default(cuid())
+  label           String?
+  updatedAt       DateTime         @updatedAt
+}
+
+model Item {
+  createdAt      DateTime        @default(now())
+  id             String          @id @default(cuid())
+  itemAttributes ItemAttribute[]
+  itemType       ItemType?       @relation(fields: [itemTypeId], references: [id])
+  itemTypeId     String?
+  updatedAt      DateTime        @updatedAt
+}
+
+model ItemAttribute {
+  Item        Item?      @relation(fields: [ItemId], references: [id])
+  ItemId      String?
+  attribute   Attribute? @relation(fields: [attributeId], references: [id])
+  attributeId String?
+  createdAt   DateTime   @default(now())
+  id          String     @id @default(cuid())
+  updatedAt   DateTime   @updatedAt
+  value       String?
+}
+
+enum EnumAttributeTypeField {
+  Text
+  Dropdown
+}
